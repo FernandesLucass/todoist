@@ -17,13 +17,18 @@ Este projeto foi desenvolvido como uma aplicação completa, integrando frontend
 * **Feedback Visual:** Indicadores de carregamento e mensagens para o usuário.
 * **Persistência de Dados:** Todas as tarefas são salvas em um banco de dados MySQL.
 
-## ▶️ Rodando a Aplicação
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+## ▶️ Rodando a Aplicação:
+
+* Adicione ao DB as informações da Tabela. --> Siga os passos detalhados da seção '1. Configuração do Banco de Dados' deste mesmo manual!
 * Rode o arquivo 'server.js'
 * No terminal do VSCODE, abra o caminho do frontend: cd frontend
 * Rode o frontend: npm run dev
 
-## 🛠️ Tecnologias Utilizadas
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## 🛠️ Tecnologias Utilizadas:
 
 Este projeto é dividido em duas partes principais: Frontend e Backend.
 
@@ -45,6 +50,8 @@ Este projeto é dividido em duas partes principais: Frontend e Backend.
 **Banco de Dados:**
 * **MySQL**
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ## 📂 Estrutura do Projeto
 
 todoist/
@@ -63,6 +70,8 @@ todoist/
 ├── package.json            # Dependências e scripts do backend
 ├── server.js               # Arquivo principal do servidor backend Express
 └── README.md               # Este arquivo!
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 ## 🚀 Configuração e Instalação
 
@@ -97,3 +106,11 @@ INSERT INTO tarefas (titulo, descricao, concluida) VALUES
 ('Estudar Svelte', 'Ler a documentação oficial e fazer os tutoriais.', false),
 ('Configurar Backend', 'Criar as rotas da API para o CRUD de tarefas.', true),
 ('Desenvolver Frontend', 'Construir a interface com Svelte e Tailwind CSS.', false);
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+## 📝 Contatos:
+
+Email: lucas.lfernandes@outlook.com
+GithHub: https://github.com/FernandesLucass
+LinkedIn: https://www.linkedin.com/in/lucas-andr%C3%A9-fernandes-2831601a0/
