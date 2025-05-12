@@ -5,36 +5,36 @@
   import TodoItem from './TodoItem.svelte';
   import Spinner from './Spinner.svelte';
   import type { Todo } from '../types/todo';
+  import TodoDetailModal from './TodoDetailModal.svelte'; // <--- 1. IMPORTE O MODAL
 
   let loading = true;
   let error: string | null = null;
 
-  // Listas reativas derivadas da store principal
   let tarefasPendentes: Todo[] = [];
   let tarefasConcluidas: Todo[] = [];
 
-  // $: é uma declaração reativa do Svelte.
-  // Este bloco será reexecutado sempre que $todoStore mudar.
+  // Variável para guardar a tarefa selecionada para o modal
+  let selectedTodoForModal: Todo | null = null; // <--- 2. ADICIONE ESTA VARIÁVEL DE ESTADO
+
   $: {
     if ($todoStore) {
       tarefasPendentes = $todoStore.filter(todo => !todo.concluida);
       tarefasConcluidas = $todoStore.filter(todo => todo.concluida);
     } else {
-      // Caso a store seja null ou undefined inicialmente (pouco provável com writable([]))
       tarefasPendentes = [];
       tarefasConcluidas = [];
     }
   }
 
   onMount(async () => {
-    loading = true; // Garantir que loading seja true no início da busca
-    error = null;   // Limpar erros anteriores
+    // ... (seu onMount existente para buscar tarefas, não precisa mudar) ...
+    loading = true; 
+    error = null;   
     try {
       const todos = await getTodos();
       todoStore.set(todos);
     } catch (err) {
       error = err instanceof Error ? err.message : 'Falha ao buscar tarefas';
-      // Usar dados de demonstração em caso de erro na busca inicial
       todoStore.set([
         { id: 1, titulo: 'Aprender Svelte (Demo)', descricao: 'Completar o tutorial do Svelte', concluida: true, criada_em: '', atualizada_em: '' },
         { id: 2, titulo: 'Construir App de Tarefas (Demo)', descricao: 'Criar um app de Tarefas com Svelte e Tailwind', concluida: false, criada_em: '', atualizada_em: '' },
@@ -44,6 +44,16 @@
       loading = false;
     }
   });
+
+  // Função para ser chamada pelo TodoItem para ABRIR o modal
+  function handleViewDetails(event: CustomEvent<Todo>) { // <--- 3. ADICIONE ESTA FUNÇÃO
+    selectedTodoForModal = event.detail;
+  }
+
+  // Função para FECHAR o modal
+  function closeDetailModal() { // <--- 4. ADICIONE ESTA FUNÇÃO
+    selectedTodoForModal = null;
+  }
 </script>
 
 <div>
@@ -66,11 +76,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           {#each tarefasPendentes as todo (todo.id)}
             <div class="animate-slideIn">
-              <TodoItem {todo} />
+              <TodoItem {todo} on:viewdetails={handleViewDetails} />
             </div>
           {/each}
         </div>
-      {/if} 
+      {/if}
     </div>
 
     {#if tarefasConcluidas.length > 0}
@@ -80,7 +90,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           {#each tarefasConcluidas as todo (todo.id)}
             <div class="animate-slideIn">
-              <TodoItem {todo} />
+              <TodoItem {todo} on:viewdetails={handleViewDetails} />
             </div>
           {/each}
         </div>
@@ -92,5 +102,12 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 text-center mt-4">
       <p class="text-gray-600 dark:text-gray-300">Nenhuma tarefa adicionada ainda. Adicione uma nova tarefa no botão acima para começar!</p>
     </div>
+  {/if}
+  {#if selectedTodoForModal}
+    <TodoDetailModal 
+      isOpen={true} 
+      todo={selectedTodoForModal} 
+      on:close={closeDetailModal} 
+    />
   {/if}
 </div>

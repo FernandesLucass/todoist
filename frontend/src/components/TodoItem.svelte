@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher } from 'svelte'; // Já deve estar aqui
   import type { Todo } from '../types/todo';
   import { toggleTodoCompleted as apiToggleTodo, deleteTodo as apiDeleteTodo } from '../services/api';
   import { toggleTodoCompleted, deleteTodo } from '../stores/todoStore';
@@ -11,14 +11,17 @@
   let isDeleting = false;
   let isUpdating = false;
 
+  const dispatch = createEventDispatcher(); // Já deve estar aqui
+
   async function handleToggleCompleted() {
+    // ... (código existente, sem alterações aqui)
     try {
       isUpdating = true;
-      toggleTodoCompleted(todo.id); // Atualização otimista na store
-      await apiToggleTodo(todo.id, !todo.concluida); // Atualização no backend
+      toggleTodoCompleted(todo.id); 
+      await apiToggleTodo(todo.id, !todo.concluida); 
     } catch (error) {
       console.error('Falha ao alterar status da tarefa:', error);
-      toggleTodoCompleted(todo.id); // Reverte na store em caso de erro na API
+      toggleTodoCompleted(todo.id); 
       alert('Falha ao atualizar status da tarefa. Por favor, tente novamente.');
     } finally {
       isUpdating = false;
@@ -26,19 +29,18 @@
   }
 
   async function handleDelete() {
+    // ... (código existente, sem alterações aqui)
     if (!confirm('Tem certeza que deseja excluir esta tarefa?')) {
       return;
     }
-
     try {
       isDeleting = true;
-      deleteTodo(todo.id); // Atualização otimista na store
-      await apiDeleteTodo(todo.id); // Atualização no backend
+      deleteTodo(todo.id); 
+      await apiDeleteTodo(todo.id); 
     } catch (error) {
       console.error('Falha ao excluir tarefa:', error);
       alert('Falha ao excluir tarefa. Por favor, tente novamente.');
-    } 
-    // O item some visualmente, então 'isDeleting' não precisa ser resetado para false aqui.
+    }
   }
 
   function startEditing() {
@@ -47,6 +49,11 @@
 
   function cancelEditing() {
     isEditing = false;
+  }
+
+  // NOVA ALTERAÇÃO: Função para disparar o evento 'viewdetails'
+  function handleViewDetails() {
+    dispatch('viewdetails', todo); // Envia o evento com o objeto 'todo' atual
   }
 </script>
 
@@ -65,7 +72,7 @@
           on:change={handleToggleCompleted}
         />
       </div>
-      <div class="ml-3 flex-grow pr-20">
+      <div class="ml-3 flex-grow pr-20 md:pr-24"> 
         <label
           for="todo-{todo.id}"
           class="font-medium text-gray-800 dark:text-gray-100 cursor-pointer {todo.concluida ? 'line-through text-gray-500 dark:text-gray-400' : ''}"
@@ -75,7 +82,7 @@
       </div>
     </div>
 
-    <div class="ml-8 text-gray-600 dark:text-gray-300 text-sm mb-4 {todo.concluida ? 'line-through text-gray-400 dark:text-gray-500' : ''}">
+    <div class="ml-8 text-gray-600 dark:text-gray-300 text-sm mb-4 {todo.concluida ? 'line-through text-gray-400 dark:text-gray-500' : ''} line-clamp-3">
       {#if todo.descricao}
         {todo.descricao}
       {:else}
@@ -83,7 +90,14 @@
       {/if}
     </div>
 
-    <div class="flex justify-end space-x-2 mt-2">
+    <div class="flex justify-end items-center space-x-2 mt-2">
+      <button
+        class="btn btn-outline text-xs py-1 px-2"
+        on:click={handleViewDetails}
+        aria-label="Ver detalhes da tarefa {todo.titulo}"
+      >
+        Detalhes
+      </button>
       <button
         class="btn btn-outline text-sm py-1"
         on:click={startEditing}
