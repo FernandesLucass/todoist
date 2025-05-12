@@ -22,6 +22,7 @@ Este projeto foi desenvolvido como uma aplicação completa, integrando frontend
 ## ▶️ Rodando a Aplicação:
 
 * Adicione ao DB as informações da Tabela. --> Siga os passos detalhados da seção '1. Configuração do Banco de Dados' deste mesmo manual!
+* Verifique as credenciais do arquivo '.env'
 * Rode o arquivo 'server.js'
 * No terminal do VSCODE, abra o caminho do frontend: cd frontend
 * Rode o frontend: npm run dev
