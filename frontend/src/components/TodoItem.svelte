@@ -65,7 +65,7 @@
           on:change={handleToggleCompleted}
         />
       </div>
-      <div class="ml-3 flex-grow">
+      <div class="ml-3 flex-grow pr-20">
         <label
           for="todo-{todo.id}"
           class="font-medium text-gray-800 dark:text-gray-100 cursor-pointer {todo.concluida ? 'line-through text-gray-500 dark:text-gray-400' : ''}"
