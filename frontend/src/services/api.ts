@@ -1,11 +1,8 @@
-// src/services/api.ts - VERSÃO COMPLETA E CORRIGIDA
-
 import type { Todo, CreateTodoInput, UpdateTodoInput } from '../types/todo';
 
-// Base URL para a sua API (já estava correta)
 const API_URL = 'http://localhost:3303';
 
-// Função auxiliar para tratar erros de fetch que esperam JSON na resposta (usada por GET)
+// Função auxiliar para tratar erros de fetch que esperam JSON na resposta
 async function handleJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ message: `API error: ${response.status} ${response.statusText}` }));
@@ -14,7 +11,7 @@ async function handleJsonResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-// Função auxiliar para tratar erros de fetch que esperam apenas status OK (usada por POST, PUT, DELETE)
+// Função auxiliar para tratar erros de fetch que esperam apenas status OK
 async function handleOkResponse(response: Response, operation: string): Promise<void> {
   if (!response.ok) {
     const errorText = await response.text().catch(() => `API error during ${operation}: ${response.status} ${response.statusText}`);
@@ -23,21 +20,20 @@ async function handleOkResponse(response: Response, operation: string): Promise<
   // Nenhuma ação com o corpo da resposta se for bem-sucedido para estas operações
 }
 
-// Get all todos (Buscando da rota /tarefas)
+// Busca todas as tarefas
 export async function getTodos(): Promise<Todo[]> {
   const response = await fetch(`${API_URL}/tarefas`);
   return handleJsonResponse<Todo[]>(response);
 }
 
-// Get a single todo by ID (Buscando da rota /tarefas/:id)
+// Busca uma única tarefa pelo ID
 export async function getTodoById(id: number): Promise<Todo> {
-  const response = await fetch(`${API_URL}/tarefas/${id}`); // Corrigido de /todos para /tarefas
+  const response = await fetch(`${API_URL}/tarefas/${id}`);
   return handleJsonResponse<Todo>(response);
 }
 
-// Create a new todo (Enviando para /tarefas e esperando o Todo criado de volta)
-// CreateTodoInput já usa 'titulo' e 'descricao' por causa das nossas mudanças em types/todo.ts
-export async function createTodo(todoData: CreateTodoInput): Promise<Todo> { // <-- Mudado para Promise<Todo>
+// Cria uma nova tarefa
+export async function createTodo(todoData: CreateTodoInput): Promise<Todo> {
   const response = await fetch(`${API_URL}/tarefas`, {
     method: 'POST',
     headers: {
@@ -45,31 +41,30 @@ export async function createTodo(todoData: CreateTodoInput): Promise<Todo> { // 
     },
     body: JSON.stringify(todoData),
   });
-  return handleJsonResponse<Todo>(response); // <-- Mudado para handleJsonResponse<Todo>
+  return handleJsonResponse<Todo>(response);
 }
 
-// Update a todo (Enviando para /tarefas/:id)
-// UpdateTodoInput já usa 'titulo', 'descricao', 'concluida' por causa de types/todo.ts
+// Atualiza uma tarefa existente
 export async function updateTodo(todoData: UpdateTodoInput): Promise<void> {
-  const response = await fetch(`${API_URL}/tarefas/${todoData.id}`, { // Corrigido de /todos para /tarefas
+  const response = await fetch(`${API_URL}/tarefas/${todoData.id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(todoData), // Enviando todo o objeto (id não é necessário no corpo, mas não prejudica)
+    body: JSON.stringify(todoData),
   });
   return handleOkResponse(response, 'update task');
 }
 
-// Delete a todo (Enviando para /tarefas/:id) - CORRIGIDO
+// Deleta uma tarefa
 export async function deleteTodo(id: number): Promise<void> {
-  const response = await fetch(`${API_URL}/tarefas/${id}`, { // CORRIGIDO
+  const response = await fetch(`${API_URL}/tarefas/${id}`, {
     method: 'DELETE',
   });
   return handleOkResponse(response, 'delete task');
 }
 
-// Toggle todo completed status (Enviando para /tarefas/:id/status) - JÁ ESTAVA CORRETO
+// Alterna o status de concluída de uma tarefa
 export async function toggleTodoCompleted(id: number, novoEstadoConcluida: boolean): Promise<void> {
   const response = await fetch(`${API_URL}/tarefas/${id}/status`, {
     method: 'PUT',

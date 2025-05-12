@@ -1,30 +1,30 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import type { Todo, UpdateTodoInput } from '../types/todo'; // Importando UpdateTodoInput também
+  import type { Todo, UpdateTodoInput } from '../types/todo';
   import { updateTodo as apiUpdateTodo } from '../services/api';
-  import { updateTodo as storeUpdateTodo } from '../stores/todoStore'; // Renomeado para clareza
+  import { updateTodo as storeUpdateTodo } from '../stores/todoStore';
 
   export let todo: Todo;
 
-  // Variáveis locais do formulário
+  // Variáveis locais para os campos do formulário
   let currentTitle = '';
   let currentDescription = '';
+  
+  let isSubmitting = false;
+  let titleError = '';
 
-  // Inicializa as variáveis locais com os valores da prop 'todo' quando o componente é montado
+  // Inicializa os campos do formulário com os valores da tarefa atual ao montar o componente
   onMount(() => {
     currentTitle = todo.titulo;
     currentDescription = todo.descricao || ''; // Garante que seja string, mesmo se descricao for null
   });
 
-  let isSubmitting = false;
-  let titleError = ''; // Para o erro de validação do título
-
   const dispatch = createEventDispatcher();
 
-  function validateForm() {
+  function validateForm(): boolean {
     titleError = '';
     if (!currentTitle.trim()) {
-      titleError = 'Título é obrigatório'; // Mensagem traduzida
+      titleError = 'Título é obrigatório';
       return false;
     }
     return true;
@@ -35,46 +35,32 @@
 
     isSubmitting = true;
     try {
-      // Objeto com os campos que foram atualizados, usando os nomes corretos
       const updatedFields: Partial<Todo> = {
         titulo: currentTitle,
         descricao: currentDescription,
-        // Não incluímos 'concluida' aqui, pois este form não a altera.
-        // Mantemos o 'id' e 'concluida' originais da prop 'todo' para a store,
-        // ou passamos apenas os campos que mudaram.
-        // A store 'updateTodo' espera Partial<Todo>, então só os campos alterados bastam.
       };
+      storeUpdateTodo(todo.id, updatedFields); // Atualização otimista na store
 
-      // Atualiza a store localmente (otimismo)
-      storeUpdateTodo(todo.id, updatedFields); 
-
-      // Prepara dados para a API, incluindo o ID e os campos corretos
       const dataForApi: UpdateTodoInput = {
         id: todo.id,
         titulo: currentTitle,
-        descricao: currentDescription
-        // Não precisamos enviar 'concluida' se não a alteramos neste form.
-        // A função apiUpdateTodo no api.ts já está esperando UpdateTodoInput,
-        // que tem os campos como opcionais.
+        descricao: currentDescription,
       };
-      await apiUpdateTodo(dataForApi); 
+      await apiUpdateTodo(dataForApi); // Atualização no backend
 
-      dispatch('save'); // Emite o evento para fechar o formulário no TodoItem.svelte
+      dispatch('save'); // Sinaliza que salvou com sucesso
     } catch (error) {
-      console.error('Falha ao atualizar tarefa:', error); // Sua tradução mantida
-      alert('Falha ao atualizar tarefa! Por favor, tente novamente.'); // Sua tradução mantida
-      // Poderíamos considerar reverter a atualização da store aqui,
-      // mas por ora o alerta é suficiente e o usuário pode tentar de novo.
+      console.error('Falha ao atualizar tarefa:', error);
+      alert('Falha ao atualizar tarefa! Por favor, tente novamente.');
     } finally {
       isSubmitting = false;
     }
   }
 
   function handleCancel() {
-    dispatch('cancel');
+    dispatch('cancel'); // Sinaliza o cancelamento
   }
 </script>
-
 <form on:submit|preventDefault={handleSubmit} class="space-y-4 bg-gray-600 dark:bg-gray-750 p-4 rounded-md shadow-inner">
   <div>
     <label for="edit-title-{todo.id}" class="block text-sm font-medium text-gray-700 dark:text-gray-300">

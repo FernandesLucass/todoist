@@ -1,12 +1,11 @@
-
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import type { Todo } from '../types/todo'; // Importa nossa interface Todo MODIFICADA
+  import type { Todo } from '../types/todo';
   import { toggleTodoCompleted as apiToggleTodo, deleteTodo as apiDeleteTodo } from '../services/api';
-  import { toggleTodoCompleted, deleteTodo, updateTodo } from '../stores/todoStore'; // toggleTodoCompleted na store já usa 'concluida'
+  import { toggleTodoCompleted, deleteTodo } from '../stores/todoStore';
   import TodoEditForm from './TodoEditForm.svelte';
 
-  export let todo: Todo; // Recebe o objeto Todo com os campos corretos: titulo, descricao, concluida
+  export let todo: Todo;
 
   let isEditing = false;
   let isDeleting = false;
@@ -15,20 +14,12 @@
   async function handleToggleCompleted() {
     try {
       isUpdating = true;
-      // Atualiza a store localmente primeiro
-      toggleTodoCompleted(todo.id); 
-
-      // Depois atualiza o backend
-      // A prop 'todo' aqui pode não ter o valor mais recente de 'concluida' após o toggle na store.
-      // É mais seguro pegar o valor atualizado da store ou enviar o oposto do valor original.
-      // Para esta chamada, usaremos !todo.concluida (o estado original da prop 'todo' invertido).
-      // Ajustaremos apiToggleTodo em api.ts depois para lidar com o payload { concluida: boolean }.
-      await apiToggleTodo(todo.id, !todo.concluida); // Alterado para usar todo.concluida
+      toggleTodoCompleted(todo.id); // Atualização otimista na store
+      await apiToggleTodo(todo.id, !todo.concluida); // Atualização no backend
     } catch (error) {
-      console.error('Failed to toggle todo status:', error);
-      // Reverte a mudança na store se a chamada API falhar
-      toggleTodoCompleted(todo.id); 
-      alert('Failed to update task status. Please try again.');
+      console.error('Falha ao alterar status da tarefa:', error);
+      toggleTodoCompleted(todo.id); // Reverte na store em caso de erro na API
+      alert('Falha ao atualizar status da tarefa. Por favor, tente novamente.');
     } finally {
       isUpdating = false;
     }
@@ -41,13 +32,13 @@
 
     try {
       isDeleting = true;
-      deleteTodo(todo.id); // Remove da store
-      await apiDeleteTodo(todo.id); // Deleta no backend (precisaremos ajustar apiDeleteTodo em api.ts depois)
+      deleteTodo(todo.id); // Atualização otimista na store
+      await apiDeleteTodo(todo.id); // Atualização no backend
     } catch (error) {
-      console.error('Failed to delete todo:', error);
-      alert('Failed to delete task. Please try again.');
-    }
-    // Não resetar isDeleting = false aqui, pois o item some.
+      console.error('Falha ao excluir tarefa:', error);
+      alert('Falha ao excluir tarefa. Por favor, tente novamente.');
+    } 
+    // O item some visualmente, então 'isDeleting' não precisa ser resetado para false aqui.
   }
 
   function startEditing() {
@@ -69,7 +60,8 @@
           id="todo-{todo.id}"
           type="checkbox"
           class="w-5 h-5 text-primary-600 border-gray-300 rounded cursor-pointer focus:ring-primary-500"
-          checked={todo.concluida} disabled={isUpdating}
+          checked={todo.concluida} 
+          disabled={isUpdating}
           on:change={handleToggleCompleted}
         />
       </div>
@@ -78,12 +70,15 @@
           for="todo-{todo.id}"
           class="font-medium text-gray-800 dark:text-gray-100 cursor-pointer {todo.concluida ? 'line-through text-gray-500 dark:text-gray-400' : ''}"
         >
-          {todo.titulo} </label>
+          {todo.titulo}
+        </label>
       </div>
     </div>
 
     <div class="ml-8 text-gray-600 dark:text-gray-300 text-sm mb-4 {todo.concluida ? 'line-through text-gray-400 dark:text-gray-500' : ''}">
-      {#if todo.descricao} {todo.descricao} {:else}
+      {#if todo.descricao}
+        {todo.descricao}
+      {:else}
         <span class="italic text-gray-400 dark:text-gray-500">Sem descrição</span>
       {/if}
     </div>
@@ -105,7 +100,8 @@
     </div>
 
     <div class="absolute top-2 right-2">
-      {#if todo.concluida} <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-500 text-white">
+      {#if todo.concluida}
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-500 text-white">
           Concluída
         </span>
       {:else}

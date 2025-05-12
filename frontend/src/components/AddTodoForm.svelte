@@ -6,44 +6,37 @@
   let description = '';
   let isSubmitting = false;
   let isFormOpen = false;
-  let titleError = '';
+  let titleError = ''; // Mensagem de erro para o campo título
   
-  function validateForm() {
+  function validateForm(): boolean {
     titleError = '';
     if (!title.trim()) {
-      titleError = 'Title is required';
+      titleError = 'O título é obrigatório'; 
       return false;
     }
     return true;
   }
   
-  // Dentro de AddTodoForm.svelte - função handleSubmit MODIFICADA
   async function handleSubmit() {
     if (!validateForm()) return;
 
     isSubmitting = true;
     try {
-      // Criamos um objeto com os nomes de campos corretos para a API
       const dadosNovaTarefa = {
-        titulo: title,       // Mapeando 'title' do formulário para 'titulo'
-        descricao: description // Mapeando 'description' do formulário para 'descricao'
+        titulo: title,
+        descricao: description
       };
-      const novaTarefaCriada = await apiCreateTodo(dadosNovaTarefa); // Envia os dados corretos
-
-      // Adiciona a tarefa retornada pelo backend (que já tem o ID correto) à store
+      const novaTarefaCriada = await apiCreateTodo(dadosNovaTarefa); 
       addTodo(novaTarefaCriada); 
 
-      // Reseta o formulário
+      // Reseta e fecha o formulário após sucesso
       title = '';
       description = '';
-      isFormOpen = false; // Fecha o formulário após sucesso
-      titleError = '';    // Limpa erro do título
+      isFormOpen = false; 
+      titleError = '';    
     } catch (error) {
-      console.error('Failed to create todo:', error);
+      console.error('Falha ao criar tarefa (log):', error); 
       alert('Falha ao criar tarefa: ' + (error instanceof Error ? error.message : 'Erro desconhecido'));
-      // Não vamos adicionar um mockTodo na falha por enquanto para simplificar
-      // e evitar inconsistências de tipo, já que o erro 400 impede a criação.
-      // O formulário permanecerá aberto com os dados para o usuário tentar corrigir/reenviar.
     } finally {
       isSubmitting = false;
     }
@@ -51,7 +44,7 @@
   
   function toggleForm() {
     isFormOpen = !isFormOpen;
-    if (!isFormOpen) {
+    if (!isFormOpen) { // Limpa os campos se o formulário for fechado sem submeter
       title = '';
       description = '';
       titleError = '';
@@ -68,38 +61,32 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
       </svg>
-      Adicionar Tarefa
-    </button>
+      Adicionar Tarefa </button>
   {:else}
     <form on:submit|preventDefault={handleSubmit} class="space-y-4 animate-fadeIn">
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Title
+        <label for="add-form-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Título
         </label>
         <input
-          id="title"
-          type="text"
+          id="add-form-title" type="text"
           class="input mt-1"
           class:border-red-500={titleError}
           bind:value={title}
-          placeholder="Título da tarefa"
-        />
+          placeholder="Título da tarefa" />
         {#if titleError}
-          <p class="mt-1 text-sm text-red-600">{titleError}</p>
-        {/if}
+          <p class="mt-1 text-sm text-red-600">{titleError}</p> {/if}
       </div>
       
       <div>
-        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Description (optional)
+        <label for="add-form-description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Descrição (opcional)
         </label>
         <textarea
-          id="description"
-          class="input mt-1"
+          id="add-form-description" class="input mt-1"
           rows="3"
           bind:value={description}
-          placeholder="Descrição da tarefa (opcional)"
-        ></textarea>
+          placeholder="Descrição da tarefa (opcional)" ></textarea>
       </div>
       
       <div class="flex justify-end space-x-2">
@@ -109,14 +96,13 @@
           on:click={toggleForm}
           disabled={isSubmitting}
         >
-          Cancelar
-        </button>
+          Cancelar </button>
         <button
           type="submit"
           class="btn btn-primary"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Adicionando...' : 'Adicionar'}
+          {isSubmitting ? 'Adicionando...' : 'Adicionar'} 
         </button>
       </div>
     </form>

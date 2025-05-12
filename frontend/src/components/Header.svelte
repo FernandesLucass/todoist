@@ -1,7 +1,7 @@
 <script lang="ts">
   import { todoStore } from '../stores/todoStore';
   
-  // Track completed vs total tasks
+  // Contadores reativos para o total de tarefas e tarefas concluídas
   $: completedTasks = $todoStore.filter(todo => todo.concluida).length;
   $: totalTasks = $todoStore.length;
 </script>
@@ -12,7 +12,7 @@
     {#if totalTasks > 0}
       <span class="font-semibold">{completedTasks}</span> de <span class="font-semibold">{totalTasks}</span> Tarefas Concluídas!
     {:else}
-      <!-- No tasks yet. Add your first task below! -->
+      <!-- <span>Ainda não há tarefas. Adicione sua primeira tarefa abaixo!</span> -->
     {/if}
   </p>
 </header>

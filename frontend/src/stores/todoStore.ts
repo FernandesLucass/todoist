@@ -1,17 +1,16 @@
-// src/stores/todoStore.ts MODIFICADO COMPLETO
 import { writable } from 'svelte/store';
-import type { Todo } from '../types/todo'; // Importa a interface Todo MODIFICADA
+import type { Todo } from '../types/todo';
 
 export const todoStore = writable<Todo[]>([]);
 
-// Helper functions for modifying the store
+// Funções auxiliares para modificar a store
 export const addTodo = (todo: Todo) => {
   todoStore.update(todos => [...todos, todo]);
 };
 
 export const updateTodo = (id: number, updates: Partial<Todo>) => {
   todoStore.update(todos => 
-    todos.map(t => // Mudei 'todo' para 't' para evitar conflito com o 'todo' do map
+    todos.map(t => // Usando 't' como parâmetro para evitar conflito com 'todo' se 'updates' contivesse 'todo'
       t.id === id ? { ...t, ...updates } : t
     )
   );
@@ -24,7 +23,7 @@ export const deleteTodo = (id: number) => {
 export const toggleTodoCompleted = (id: number) => {
   todoStore.update(todos => 
     todos.map(todo => 
-      todo.id === id ? { ...todo, concluida: !todo.concluida } : todo // Alterado aqui
+      todo.id === id ? { ...todo, concluida: !todo.concluida } : todo
     )
   );
 };
